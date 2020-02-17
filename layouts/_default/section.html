@@ -1,0 +1,12 @@
+{{ partial "head.html" . }}
+{{ partial "section-header.html" . }}
+<div class="startpage-background fullscreen-hero" style="background-image: url('{{.Site.Params.coverImage}}');">
+</div>
+<div class="startpage">
+	<div class="ui container">
+		<div class="ui center aligned inverted segment content">
+			{{ .Content }}
+		</div>
+	</div>
+</div>
+{{ partial "footer.html" . }}

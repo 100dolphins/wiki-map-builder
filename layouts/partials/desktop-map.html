@@ -1,0 +1,77 @@
+{{ $wikiUrl := .Site.Params.wikiUrl }}
+{{ $category := .Site.Params.wikiCategory }}
+{{ $dataGeo := getJSON "/data/coordinates.json" }}
+{{ $dataMain := getJSON "/data/text.json"}}
+<script type="text/javascript">
+window.targets = [
+{{ range $dataGeo.query.pages }}
+  {
+    id: {{.pageid}},
+    {{ range .coordinates }}
+    lng: {{.lon}},
+    lat: {{.lat}}
+    {{ end }}
+  },
+{{ end }}
+]
+
+var map = L.map('desktop-map').setView([51.482778, 11.97], 13);
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> | Imagery © <a href="https://www.mapbox.com/">Mapbox</a> | <a href="/impressum">Impressum</a> | <a href="/datenschutz">Datenschutz</a> | <a href="/about">About</a> | <a href="">SaWi</a> | <a href="{{.Site.Params.projectLink}}">{{.Site.Params.projectName}}</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: '{{.Site.Params.mapboxAccessToken}}'
+}).addTo(map);
+
+var marker = new L.Marker([51.482778, 11.97]);
+var layerGroup = L.layerGroup([marker]).addTo(map);
+
+function updateMap(pageid) {
+  map.removeLayer(layerGroup);
+  target = targets.find(x => x.id === pageid);
+  var marker = new L.Marker([target.lat, target.lng]);
+  layerGroup = L.layerGroup([marker]).addTo(map);
+  map.setZoom(17)
+  map.flyTo([target.lat, target.lng])
+}
+
+$(document).ready(function(){
+     $('#menu-start').click(function(){
+        $('#start').removeClass('hidden');
+        $('#start-image').removeClass('hidden');
+        $('#menu-start').addClass('active'); 
+        $('.active.item').not('#menu-start').removeClass('active');
+        $('.desktop-content').not('#start').addClass('hidden');
+        $('.desktop-image').not('#start-image').addClass('hidden');
+        map.removeLayer(layerGroup);
+        var marker = new L.Marker([51.482778, 11.97]);
+        layerGroup = L.layerGroup([marker]).addTo(map);
+        map.setView([51.482778, 11.97], 13)  
+     });
+});
+
+{{ range $dataMain.query.pages }}
+$(document).ready(function(){
+     $('#menu-{{.pageid}}').click(function(){
+        updateMap({{.pageid}})
+        $('#{{.pageid}}').removeClass('hidden');
+        $('#{{.pageid}}-image').removeClass('hidden');
+        $('.active.item').not('#menu-{{.pageid}}').removeClass('active');
+        $('#menu-{{.pageid}}').addClass('active');  
+        $('.desktop-content').not('#{{.pageid}}').addClass('hidden');  
+        $('.desktop-image').not('#{{.pageid}}-image').addClass('hidden');
+     });
+});
+{{end}}
+
+{{ range .Site.Data.extraContent }}
+  {{range .query.pages }}
+$(document).ready(function(){
+     $('#modal{{.pageid}}Trigger').click(function(){
+        $('#modal{{.pageid}}').modal('show');    
+     });
+});
+  {{end}}
+{{end}}
+</script>

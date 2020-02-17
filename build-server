@@ -1,0 +1,4 @@
+#!/bin/bash
+npm install
+node static/js/login.js
+hugo server --disableFastRender

@@ -1,0 +1,15 @@
+{
+  "name": "wikimap",
+  "version": "1.0.0",
+  "description": "A tool to build digital walks with Mediawiki, Leaflet and Hugo",
+  "main": "/js/login.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "200dolphins",
+  "license": "ISC",
+  "dependencies": {
+    "leaflet-routing-machine": "^3.2.12",
+    "semantic-ui": "^2.4.2"
+  }
+}

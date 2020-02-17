@@ -1,0 +1,20 @@
+{{ partial "head.html" . }}
+{{ partial "header.html" . }}
+<div class="startpage-background fullscreen-hero" style="background-image: url('{{.Site.Params.coverImage}}');">
+</div>
+<div class="startpage">
+	<div class="ui container">
+		<div class="ui center aligned inverted segment content">
+			{{ .Content }}
+		</div>
+		<a class="ui huge fluid black icon button"  href="mobile">
+			<i class="mobile alternate icon"></i> 
+			Start walk with smartphone
+		</a>
+		<a class="ui large fluid black icon button" href="/desktop">
+			<i class="desktop icon"></i>
+			Overview of stations
+		</a>
+	</div>
+</div>
+{{ partial "footer.html" . }}

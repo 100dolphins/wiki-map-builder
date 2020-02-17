@@ -1,0 +1,45 @@
+<div class="ui header header-bar">
+  <div class="ui fixed top">
+    <div class="ui attached inverted segment middle aligned grid header-grid">
+      {{ if isset .Site.Params "projectlogo"}}
+      <a class="two wide computer only column" href="{{.Site.Params.projectUrl}}" title="{{.Site.Params.projectName}}" target="_blank">
+          <img class="ui tiny left floated circular image logo" src="{{.Site.Params.projectLogo}}">
+      </a>
+      <a class="two wide computer only column" href="{{.Site.Params.projectUrl}}" title="{{.Site.Params.projectName}}" target="_blank">
+        <div class="link-text">{{.Site.Params.projectName}}</div>
+      </a>
+      {{ else }}
+      <a class="four wide computer only column" href="{{.Site.Params.projectUrl}}" title="{{.Site.Params.projectName}}" target="_blank">
+        <div class="link-text">{{.Site.Params.projectName}}</div>
+      </a>
+      {{ end }}
+      <div class="computer only eight wide column">
+        <h1 class="ui centered white inverted header">{{.Title}}
+          <div class="sub header">{{.Params.subtitle}}</div>
+        </h1>
+      </div>
+      {{ if isset .Site.Params "wikilogo"}}
+      <a class="two wide computer only column" href="{{.Site.Params.wikiUrl}}" target="_blank">
+        <div class="link-text">{{.Site.Params.wikiName}}</div>
+      </a>
+      <a class="two wide computer only column" href="{{.Site.Params.wikiUrl}}" target="_blank">
+          <img class="ui tiny left floated circular image logo" src="{{.Site.Params.wikiLogo}}">
+      </a>
+      {{ else }}
+      <a class="four wide computer only column" href="{{.Site.Params.wikiUrl}}" target="_blank">
+        <div class="link-text">{{.Site.Params.wikiName}}</div>
+      </a>
+      {{ end }}
+      <div class="mobile only sixteen wide column">
+        <h1 class="ui centered white inverted header">{{.Title}}
+          <div class="sub header">{{.Params.subtitle}}</div>
+        </h1>
+      </div>
+      <div class="tablet only sixteen wide column">
+        <h1 class="ui centered white inverted header">{{.Title}}
+          <div class="sub header">{{.Params.subtitle}}</div>
+        </h1>
+      </div>
+    </div>
+  </div>
+</div>

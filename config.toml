@@ -1,0 +1,50 @@
+# basic page information
+baseURL = ""
+languageCode = "en-en"
+title = ""
+disableKinds = ["taxonomy", "taxonomyTerm"]
+
+[blackfriday]
+  # sets all outgoing links to target="_blank"
+  hrefTargetBlank = true
+
+[params]
+  # your mapbox login token. You can also change the optimizationApi, e.g. to use /driving/ instead of /walking/
+  # if someone wants to find your token on your webpage, they will, so remember to manage the scopes and urls for your token!
+  mapboxAccessToken = ""
+  optimizationApi = "https://api.mapbox.com/optimized-trips/v1/mapbox/walking/"
+
+  # general info about the project and the wiki, if you want no logo for either you need to remove or comment out the variable
+  # projectLogo can be a direct URL, page works best with square images
+  projectName = ""
+  projectUrl = ""
+  projectLogo = "/img/logo.jpg"
+  wikiName = "Wikipedia"
+  #wikiLogo = ""
+
+  # your main cover picture, being used on the homepage (blurred out) and as fallback for the images displayed in the desktop section
+  coverImage = ""
+
+  # the mediawiki you are using and your login details
+  wikiUrl = "https://en.wikipedia.org/"
+  botUserAgent = "AEEBQ"
+  botUser = 
+  botPassword = ""
+
+  # the category to build your project with
+  # subLevels can be left empty, if the pages you set up for this project are not subpages, see https://www.mediawiki.org/wiki/Help:Subpages for more information
+  wikiCategory = "Category:Your_Category"
+  subLevel = ""
+
+  # This param specifies the number of links before any Extra Content Links on your main project pages. The original project uses a template containing two links in each site, which need to be ignored.
+  # You can set this to 0, if you do not use any other links. To remove links from other positions than the start, you would need to modify /static/js/login.js
+  precedingLinkCount = "2"
+
+  # Specify the names for your three extra sites if you want them translated
+  # If you change the path, you will have to rename the corresponding folder in /content/ ! 
+  about = "About"
+  aboutPath = "/about/"
+  privacy = "Privacy"
+  privacyPath = "/privacy/"
+  legalNotice = "Legal Notice"
+  legalNoticePath = "/legal-notice/"

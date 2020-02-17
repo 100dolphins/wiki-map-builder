@@ -1,0 +1,37 @@
+{{ $dataMain := getJSON "/data/text.json"}}
+{{ $subLevel := .Site.Params.subLevel}}
+
+<div class="desktop-menu ui vertical pointing pagination inverted menu sidebar">
+    <a class="active item" id="menu-start">
+      {{.Site.Title}}
+    </a>
+    {{ range $dataMain.query.pages }}
+    {{ $id := string .pageid }}
+    {{ $parentTitle := replace (replace .title $subLevel "") "/" "" }}
+    <a class="item" id="menu-{{.pageid}}">
+      {{ $parentTitle }}
+    </a>
+    {{ end }}
+    <div class="ui hidden divider"></div>
+    <div class="ui divider"></div>
+    <div class="ui hidden divider"></div>
+    <a href="/" class="item">
+      Home
+    </a>
+    <a href="{{.Site.Params.aboutPath}}" class="item">
+      {{.Site.Params.about}}
+    </a>
+    <a href="{{.Site.Params.projectUrl}}"class="item">
+      {{.Site.Params.projectName}}
+    </a>
+    <a href="{{.Site.Params.wikiUrl}}"class="item">
+      {{.Site.Params.wikiName}}
+    </a>
+    <a href="{{.Site.Params.legalNoticePath}}"class="item">
+      {{.Site.Params.legalNotice}}
+    </a>
+    <a href="{{.Site.Params.privacy}}"class="item">
+      {{.Site.Params.privacy}}
+    </a>
+</div>
+<div class="ui dimmed pusher">

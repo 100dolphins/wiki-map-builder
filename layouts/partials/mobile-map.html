@@ -1,0 +1,201 @@
+media{{ $wikiUrl := .Site.Params.wikiUrl }}
+{{ $category := .Site.Params.wikiCategory }}
+{{ $dataGeo := getJSON "/data/coordinates.json" }}
+<script type="text/javascript">
+window.targets = [
+{{ range $dataGeo.query.pages }}
+  {
+    id: {{.pageid}},
+    {{ range .coordinates }}
+    lng: {{.lon}},
+    lat: {{.lat}}
+    {{ end }}
+  },
+{{ end }}
+]
+const zoomFactor = 16;
+window.orderedTargets = []
+window.targetList = ''
+
+$.each(window.targets, function(index, value) {
+  window,targetList = targetList + ';' + targets[index].lng + ',' + targets[index].lat;
+})
+
+var map = L.map('mobile-map', {
+  center: [51.483, 11.972],
+  zoom: zoomFactor,
+});
+
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/" target="_blank">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC-BY-SA</a> | Imagery © <a href="https://www.mapbox.com/" target="_blank">Mapbox</a> | <a href="/legal-notice" target="_blank">Impressum</a> | <a href="/privacy" target="_blank">Datenschutz</a> | <a href="/about" target="_blank">About</a>',
+    id: 'mapbox.streets',
+    accessToken: '{{.Site.Params.mapboxAccessToken}}'
+})
+.addTo(map);
+
+let options = { profile: 'mapbox/walking' }
+
+var routing = L.Routing.control({
+  	router: L.Routing.mapbox('{{.Site.Params.mapboxAccessToken}}', options),
+  	draggableWaypoints: false,
+    addWaypoints: false,
+  	routeWhileDragging: false,
+  	show: false,
+    fitSelectedRoutes: false
+	}).addTo(map)
+
+function locateUser() {
+  map.stopLocate()
+  map.locate({setView: false, watch: true});
+}
+
+
+function onLocationFound(e){
+  if (!onLocationFound.didrun){   
+    initialRouting(e);
+    onLocationFound.didrun = true;
+    console.log('Ran Initial Routing')
+  }
+  else { 
+    updateRouting(e)
+    console.log('Located User')   
+   }
+}
+
+map.on('locationfound', onLocationFound);
+
+function initialRouting(e, callback) {
+  return new Promise(function (resolve, reject){
+    var userLocation = L.marker(e.latlng)
+    window.targets.unshift({
+      id: 'start',
+      lng: userLocation._latlng.lng,
+      lat: userLocation._latlng.lat
+    })
+    var assembleUrl = '{{.Site.Params.optimizationApi}}' + userLocation._latlng.lng + ',' + userLocation._latlng.lat + window.targetList + '?access_token=' + '{{.Site.Params.mapboxAccessToken}}';
+    fetch(assembleUrl)
+    .then(response => {
+      return response.json()
+    })
+    .then(data => {
+      var i;
+      for (i = 0; i < data.waypoints.length; i++) {
+        window.orderedTargets[data.waypoints[i].waypoint_index] = {
+          id: targets[i].id,
+          lng: targets[i].lng,
+          lat: targets[i].lat,
+          index: data.waypoints[i].waypoint_index
+        }
+        window.targets[i].index = data.waypoints[i].waypoint_index;
+      }
+      window.orderedTargets.push({
+        id: 'last',
+        lng: orderedTargets[0].lng,
+        lat: orderedTargets[0].lat,
+        index: orderedTargets.length
+      })
+      window.target = orderedTargets[0]
+      console.log(target)
+    })
+    .then(e => {
+      layerGroup = L.layerGroup(userLocation).addTo(map);
+      routing.setWaypoints([
+        L.latLng(userLocation._latlng.lat, userLocation._latlng.lng),
+        L.latLng(window.target.lat, window.target.lng),
+      ]);   
+    })
+  });
+}
+
+function updateRouting(e) {
+  map.removeLayer(layerGroup);
+  var marker = new L.Marker(e.latlng);
+  layerGroup = L.layerGroup([marker]).addTo(map);  
+  var userLocation = L.marker(e.latlng)
+  routing.setWaypoints([
+    L.latLng(userLocation._latlng.lat, userLocation._latlng.lng),
+    L.latLng(window.target.lat, window.target.lng),
+  ]);   
+}
+
+function nextTarget() {
+  window.target = orderedTargets[target.index + 1];
+  $('#' + orderedTargets[target.index -1].id).addClass('hidden');
+  $('#' + target.id).removeClass('hidden');
+  locateUser();
+  map.setView(routing._plan._waypoints[0].latLng, zoomFactor)
+}
+function previousTarget() {
+  window.target = orderedTargets[target.index - 1];
+  $('#' + orderedTargets[target.index + 1].id).addClass('hidden');
+  $('#' + target.id).removeClass('hidden');
+  locateUser();
+  map.setView(routing._plan._waypoints[0].latLng, zoomFactor)
+}
+$('.map-next-button').click(function() {
+  if (window.target.index == 0){
+    $('#start').addClass('hidden');
+    $('#' + orderedTargets[target.index + 1].id).removeClass('hidden');
+    window.target = orderedTargets[target.index + 1];
+    locateUser();
+    map.setView(routing._plan._waypoints[0].latLng, zoomFactor)
+  } 
+  else if (window.target.index == orderedTargets.length - 2){
+    nextTarget()
+    $('.map-next-button').addClass('disabled');
+  }  
+  else if (window.target.index == orderedTargets.length - 1){
+    return;
+  }  
+  else {
+    nextTarget()
+    $('.map-back-button').removeClass('disabled');
+
+  }
+});
+
+$('.map-locate-button').click(function() {
+  locateUser();
+  map.setView(routing._plan._waypoints[0].latLng, zoomFactor)
+});
+
+$('.map-back-button').click(function() {
+  if (target.index == 0) {
+    return;
+  }
+  else if (target.index == 1) {
+    window.target = orderedTargets[target.index - 1];
+    $('#' + target.id).addClass('hidden');
+    $('#start').removeClass('hidden');
+    $('.map-back-button').addClass('disabled')
+    locateUser();
+    map.setView(routing._plan._waypoints[0].latLng, zoomFactor);
+  }
+  else if (target.index == orderedTargets.length - 1) {
+    previousTarget()
+    $('.map-next-button').removeClass('disabled')
+  }
+  else {
+    previousTarget()
+  }
+});
+
+$('.map-locate-button').click(function() {
+  locateUser();
+  map.setView(routing._plan._waypoints[0].latLng, zoomFactor)
+});
+
+{{ range .Site.Data.extraContent }}
+  {{range .query.pages }}
+$(document).ready(function(){
+     $('#modal{{.pageid}}Trigger').click(function(){
+        $('#modal{{.pageid}}').modal('show');    
+     });
+});
+  {{end}}
+{{end}}
+
+$(document).ready(function(){
+  locateUser();
+})
+</script>

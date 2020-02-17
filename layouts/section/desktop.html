@@ -1,0 +1,59 @@
+{{ partial "head.html" . }}
+{{ partial "desktop-menu.html" . }}
+{{ $category := .Site.Params.wikiCategory }}
+{{ $wikiUrl := .Site.Params.wikiUrl }}
+{{ $dataMain := getJSON "/data/text.json"}}
+{{ $index := len $dataMain.query.pages }}
+{{ $subLevel := .Site.Params.subLevel}}
+{{ $coverImage := .Site.Params.coverImage}}
+<div class="ui fluid container fullscreen-hero">
+	<div id="start-image" class="desktop-image" style="background-image: url('{{$coverImage}}');">
+		<div id="desktop-toggle" onclick="toggleSidebar()" class="ui black fixed sticky button"><i class="content icon"></i></div>
+	</div>
+	
+	<div id="start" class="ui inverted basic segment desktop-content content">
+
+		<h2 class="ui white header">{{ .Title }}</h2>
+		{{ .Content }}
+	</div>
+	{{ range $dataMain.query.pages }}
+	{{ $id := string .pageid }}
+	{{ $parentTitle := replace (replace .title $subLevel "") "/" "" }}
+		<div id="{{.pageid}}" class="ui inverted basic hidden segment desktop-content content">
+			<h2 class="ui white header">{{ $parentTitle }}</h2>
+			<p>{{ .extract | safeHTML }}</p>
+			<!-- External Content Modal -->
+
+				{{ $dataExtra := getJSON "/data/extraContent/page" $id ".json"}}
+				{{ range $dataExtra.query.pages }}
+				{{ $extraTitle := replace (replace (replace .title $subLevel "") "/" "") $parentTitle "" }}
+				<button id="modal{{.pageid}}Trigger" class="ui inverted button">
+					{{ $extraTitle }}
+				</button>
+				<div id="modal{{.pageid}}" class="ui extra longer modal modal{{.pageid}}">
+  					<i class="close icon"></i>
+  					<div class="header">
+    					{{ $extraTitle }}
+  					</div>
+  					<div class="image content">
+    					<div class="ui fluid image">
+      						<img src="{{ range .images}}{{.url}}{{end}}">
+    					</div>
+    				</div>
+  					<div class="content">
+      					<p>{{ .extract | safeHTML }}</p>
+					</div>
+				</div>
+				{{ end }}
+
+			<!-- Modal End -->
+			<div class="ui hidden divider"></div>
+		</div>
+		<div id="{{.pageid}}-image" class="hidden desktop-image"
+		{{range $dataExtra.query.pages}}
+			style="background-image: url('{{ range .images}}{{.url}}{{end}}'), url('{{$coverImage}}');"{{end}}>
+		</div>
+	{{ end }}
+	<div id="desktop-map"></div>
+	{{ partial "desktop-map" .}}
+</div>
